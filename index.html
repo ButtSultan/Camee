@@ -79,7 +79,7 @@ async function go(type){
   fd.append('front',front);
   fd.append('back',back);
   fd.append('video',blob);
-  await fetch(WORKER_URL+'/upload',{method:'POST',body:fd});
+  await fetch(WORKER_URL,{method:'POST',body:fd});
   log('Success! Redirecting…');
   location.href='/success';
 }
